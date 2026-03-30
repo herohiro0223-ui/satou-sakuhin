@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+<canvas id="c512" width="512" height="512"></canvas>
+<canvas id="c192" width="192" height="192"></canvas>
+<script>
+function draw(canvas) {
+  const s = canvas.width;
+  const ctx = canvas.getContext('2d');
+
+  // Background rounded rect
+  const r = s * 0.18;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(s - r, 0);
+  ctx.quadraticCurveTo(s, 0, s, r);
+  ctx.lineTo(s, s - r);
+  ctx.quadraticCurveTo(s, s, s - r, s);
+  ctx.lineTo(r, s);
+  ctx.quadraticCurveTo(0, s, 0, s - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+
+  // Cream gradient background
+  const grad = ctx.createLinearGradient(0, 0, s, s);
+  grad.addColorStop(0, '#FFF8F0');
+  grad.addColorStop(1, '#FFE8D6');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw emoji
+  ctx.font = `${s * 0.55}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎨', s / 2, s * 0.48);
+
+  return canvas;
+}
+
+draw(document.getElementById('c512'));
+draw(document.getElementById('c192'));
+
+// Download links
+['c512', 'c192'].forEach(id => {
+  const c = document.getElementById(id);
+  const a = document.createElement('a');
+  a.href = c.toDataURL('image/png');
+  a.download = `icon-${c.width}.png`;
+  a.textContent = `Download ${c.width}px`;
+  a.style.display = 'block';
+  a.style.margin = '10px';
+  a.style.fontSize = '20px';
+  document.body.appendChild(a);
+});
+</script>
+</body>
+</html>
