@@ -3,7 +3,7 @@ import type { Artwork, Child } from "@/types";
 export const children: Child[] = [
   {
     id: "riho",
-    name: "凛歩",
+    name: "凜歩",
     birthday: new Date(2021, 3, 9), // 2021年4月9日
     emoji: "🌸",
     color: "#E8927C",
@@ -189,6 +189,19 @@ export const artworks: Artwork[] = [
     date: new Date(2025, 11, 20),
     memo: "手形でトナカイを作りました",
     createdAt: new Date(2025, 11, 20),
+  },
+  // 2026年3月（sample1.jpg - 凛歩の作品）
+  {
+    id: "17",
+    childId: "riho",
+    title: "にじいろのせかい",
+    category: "drawing",
+    imageUrl: "/sample1.jpg",
+    thumbnailUrl: "/sample1.jpg",
+    location: "おうち",
+    date: new Date(2026, 2, 25),
+    memo: "いろんな色をつかって描きました",
+    createdAt: new Date(2026, 2, 25),
   },
   // 2025年11月
   {

@@ -1,33 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const { login, user, loading } = useAuth();
+  const { signup } = useAuth();
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!loading && user) {
-      router.replace("/gallery");
-    }
-  }, [user, loading, router]);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password.trim()) {
-      setError("メールアドレスと パスワードを いれてください");
+    if (!displayName.trim()) {
+      setError("なまえを いれてください");
+      return;
+    }
+    if (!email.trim()) {
+      setError("メールアドレスを いれてください");
+      return;
+    }
+    if (password.length < 4) {
+      setError("パスワードは 4もじ いじょう にしてください");
       return;
     }
 
-    const err = login(email, password);
+    const err = signup(email, password, displayName);
     if (err) {
       setError(err);
       return;
@@ -37,35 +40,34 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-end">
-      {/* Background image */}
       <img
         src="/family.jpg"
         alt="Family"
         className="absolute inset-0 w-full h-full object-cover"
       />
-
-      {/* Dark gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-      {/* Content */}
       <div className="relative z-10 w-full px-6 pb-12 pt-8">
-        {/* App title */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
             🎨 さくひんしゅう
           </h1>
-          <p className="text-white/80 text-base">
-            こどもの さくひんを きろくしよう
-          </p>
+          <p className="text-white/80 text-base">あたらしく はじめよう</p>
         </div>
 
-        {/* Login form */}
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4">
           {error && (
             <div className="bg-coral/20 border border-coral/40 rounded-xl px-4 py-2 text-sm text-white">
               {error}
             </div>
           )}
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="おなまえ"
+            className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-coral/50 focus:bg-white/30"
+          />
           <input
             type="email"
             value={email}
@@ -84,17 +86,16 @@ export default function LoginPage() {
             type="submit"
             className="w-full py-3 bg-coral text-white rounded-full font-bold text-lg hover:opacity-90 transition-opacity shadow-lg"
           >
-            ログイン
+            とうろくする
           </button>
         </form>
 
-        {/* Sign up link */}
         <div className="text-center mt-5">
           <Link
-            href="/signup"
+            href="/login"
             className="text-white/70 text-sm hover:text-white transition-colors underline underline-offset-2"
           >
-            はじめてのかた
+            すでに アカウントを おもちのかた
           </Link>
         </div>
       </div>

@@ -1,13 +1,26 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getArtwork, getChild } from "@/data/mock";
 import { getCategoryLabel, getCategoryEmoji } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function ArtworkDetailPage() {
+  return (
+    <AuthGuard>
+      <ArtworkDetailContent />
+    </AuthGuard>
+  );
+}
+
+function ArtworkDetailContent() {
   const params = useParams();
   const id = params.id as string;
+  const router = useRouter();
+  const { isHost } = useAuth();
+  const { getArtwork, getChild, deleteArtwork } = useData();
 
   const artwork = getArtwork(id);
   const child = artwork ? getChild(artwork.childId) : null;
@@ -30,11 +43,14 @@ export default function ArtworkDetailPage() {
   };
 
   const handleEdit = () => {
-    alert("編集機能は準備中です");
+    router.push(`/artwork/${id}/edit`);
   };
 
   const handleDelete = () => {
-    alert("削除機能は準備中です");
+    if (confirm("この さくひんを さくじょしますか？")) {
+      deleteArtwork(id);
+      router.push("/gallery");
+    }
   };
 
   return (
@@ -148,21 +164,23 @@ export default function ArtworkDetailPage() {
           )}
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleEdit}
-            className="flex-1 py-3 bg-sage text-white rounded-full font-medium text-center hover:opacity-90 transition-opacity"
-          >
-            編集
-          </button>
-          <button
-            onClick={handleDelete}
-            className="flex-1 py-3 bg-coral text-white rounded-full font-medium text-center hover:opacity-90 transition-opacity"
-          >
-            削除
-          </button>
-        </div>
+        {/* Action buttons - host only */}
+        {isHost && (
+          <div className="flex gap-3">
+            <button
+              onClick={handleEdit}
+              className="flex-1 py-3 bg-sage text-white rounded-full font-medium text-center hover:opacity-90 transition-opacity"
+            >
+              編集
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex-1 py-3 bg-coral text-white rounded-full font-medium text-center hover:opacity-90 transition-opacity"
+            >
+              削除
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

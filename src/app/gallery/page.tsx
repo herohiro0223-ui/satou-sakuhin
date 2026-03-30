@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { artworks, children } from "@/data/mock";
 import { getAvailableMonths } from "@/lib/utils";
+import { useData } from "@/contexts/DataContext";
+import AuthGuard from "@/components/auth/AuthGuard";
 import Header from "@/components/ui/Header";
 import BottomNav from "@/components/ui/BottomNav";
 import MonthSelector from "@/components/gallery/MonthSelector";
@@ -15,7 +16,16 @@ import type { Category } from "@/types";
 type FilterCategory = Category | "all";
 
 export default function GalleryPage() {
-  const availableMonths = useMemo(() => getAvailableMonths(artworks), []);
+  return (
+    <AuthGuard>
+      <GalleryContent />
+    </AuthGuard>
+  );
+}
+
+function GalleryContent() {
+  const { artworks, children } = useData();
+  const availableMonths = useMemo(() => getAvailableMonths(artworks), [artworks]);
 
   const latestMonth = availableMonths.length > 0 ? availableMonths[0] : null;
 
@@ -44,7 +54,7 @@ export default function GalleryPage() {
         selectedCategory === "all" || artwork.category === selectedCategory;
       return matchesMonth && matchesCategory;
     });
-  }, [selectedYear, selectedMonth, selectedCategory]);
+  }, [artworks, selectedYear, selectedMonth, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-cream">

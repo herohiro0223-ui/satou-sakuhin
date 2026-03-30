@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getCategoryLabel, getCategoryEmoji } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
@@ -10,18 +10,32 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import BottomNav from "@/components/ui/BottomNav";
 import type { Category } from "@/types";
 
-export default function NewArtworkPage() {
+export default function EditArtworkPage() {
   return (
     <AuthGuard>
-      <NewArtworkContent />
+      <EditArtworkContent />
     </AuthGuard>
   );
 }
 
-function NewArtworkContent() {
+function EditArtworkContent() {
+  const params = useParams();
+  const id = params.id as string;
   const { isHost } = useAuth();
-  const { children, addArtwork } = useData();
+  const { children, getArtwork, updateArtwork } = useData();
   const router = useRouter();
+
+  const artwork = getArtwork(id);
+
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState<Category>("drawing");
+  const [location, setLocation] = useState<"幼稚園" | "おうち">("おうち");
+  const [date, setDate] = useState("");
+  const [memo, setMemo] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (!isHost) {
@@ -29,14 +43,29 @@ function NewArtworkContent() {
     }
   }, [isHost, router]);
 
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<Category>("drawing");
-  const [location, setLocation] = useState<"幼稚園" | "おうち">("おうち");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [memo, setMemo] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (artwork && !initialized) {
+      setSelectedChildId(artwork.childId);
+      setTitle(artwork.title);
+      setCategory(artwork.category);
+      setLocation(artwork.location);
+      const d = new Date(artwork.date);
+      setDate(d.toISOString().split("T")[0]);
+      setMemo(artwork.memo ?? "");
+      setImagePreview(artwork.imageUrl);
+      setInitialized(true);
+    }
+  }, [artwork, initialized]);
+
+  if (!isHost) return null;
+
+  if (!artwork) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <p className="text-cocoa text-lg">さくひんが みつかりません</p>
+      </div>
+    );
+  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -56,7 +85,7 @@ function NewArtworkContent() {
       return;
     }
     const parsedDate = new Date(date);
-    addArtwork({
+    updateArtwork(id, {
       childId: selectedChildId,
       title: title.trim(),
       category,
@@ -66,7 +95,7 @@ function NewArtworkContent() {
       date: parsedDate,
       memo: memo.trim() || undefined,
     });
-    router.push("/gallery");
+    router.push(`/artwork/${id}`);
   };
 
   const categories: Category[] = ["drawing", "craft", "other"];
@@ -74,11 +103,10 @@ function NewArtworkContent() {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Header with back button */}
       <header className="fixed top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm shadow-sm">
         <div className="flex items-center h-14 px-4">
           <Link
-            href="/gallery"
+            href={`/artwork/${id}`}
             className="text-cocoa hover:text-terracotta transition-colors mr-3"
           >
             <svg
@@ -96,13 +124,13 @@ function NewArtworkContent() {
               <path d="m12 19-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-cocoa">さくひん ついか</h1>
+          <h1 className="text-lg font-bold text-cocoa">さくひん へんしゅう</h1>
         </div>
       </header>
 
       <main className="pt-14 pb-20 px-4">
         <form onSubmit={handleSubmit} className="space-y-5 py-4">
-          {/* 1. Image upload area */}
+          {/* Image */}
           <div>
             <label className="block text-sm font-medium text-cocoa mb-2">
               しゃしん
@@ -150,7 +178,7 @@ function NewArtworkContent() {
             </div>
           </div>
 
-          {/* 2. Child selector */}
+          {/* Child selector */}
           <div>
             <label className="block text-sm font-medium text-cocoa mb-2">
               だれの さくひん？
@@ -176,7 +204,7 @@ function NewArtworkContent() {
             </div>
           </div>
 
-          {/* 3. Title input */}
+          {/* Title */}
           <div>
             <label
               htmlFor="title"
@@ -194,7 +222,7 @@ function NewArtworkContent() {
             />
           </div>
 
-          {/* 4. Category selector */}
+          {/* Category */}
           <div>
             <label className="block text-sm font-medium text-cocoa mb-2">
               カテゴリ
@@ -220,7 +248,7 @@ function NewArtworkContent() {
             </div>
           </div>
 
-          {/* 5. Location selector */}
+          {/* Location */}
           <div>
             <label className="block text-sm font-medium text-cocoa mb-2">
               ばしょ
@@ -243,7 +271,7 @@ function NewArtworkContent() {
             </div>
           </div>
 
-          {/* 6. Date picker */}
+          {/* Date */}
           <div>
             <label
               htmlFor="date"
@@ -260,7 +288,7 @@ function NewArtworkContent() {
             />
           </div>
 
-          {/* 7. Memo textarea */}
+          {/* Memo */}
           <div>
             <label
               htmlFor="memo"
@@ -278,7 +306,7 @@ function NewArtworkContent() {
             />
           </div>
 
-          {/* 8. Submit button */}
+          {/* Submit */}
           <button
             type="submit"
             className="w-full py-4 bg-coral text-white rounded-full font-bold text-lg hover:opacity-90 transition-opacity shadow-md"

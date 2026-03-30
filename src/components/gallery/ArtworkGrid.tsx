@@ -1,4 +1,6 @@
-import { getChild } from "@/data/mock";
+"use client";
+
+import { useData } from "@/contexts/DataContext";
 import type { Artwork, Child } from "@/types";
 import ArtworkCard from "./ArtworkCard";
 
@@ -8,6 +10,8 @@ interface ArtworkGridProps {
 }
 
 export default function ArtworkGrid({ artworks }: ArtworkGridProps) {
+  const { getChild } = useData();
+
   return (
     <div className="grid grid-cols-3 gap-2 px-4">
       {artworks.map((artwork) => {

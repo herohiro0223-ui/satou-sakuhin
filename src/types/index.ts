@@ -26,3 +26,14 @@ export interface MonthGroup {
   month: number;
   artworks: Artwork[];
 }
+
+export type UserRole = "host" | "viewer";
+
+export interface User {
+  id: string;
+  email: string;
+  password: string;
+  displayName: string;
+  role: UserRole;
+  createdAt: string;
+}

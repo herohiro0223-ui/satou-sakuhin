@@ -10,7 +10,7 @@ export default function Header() {
         <span className="text-2xl" role="img" aria-label="palette">
           🎨
         </span>
-        <h1 className="text-xl font-bold text-terracotta">さくひんしゅう</h1>
+        <h1 className="text-xl font-bold text-terracotta">さとう家をみてね</h1>
       </div>
 
       {/* Right: search + settings */}

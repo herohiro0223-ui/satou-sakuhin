@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+  hostOnly?: boolean;
 }
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { isHost } = useAuth();
 
   const navItems: NavItem[] = [
     {
@@ -38,6 +41,7 @@ export default function BottomNav() {
     {
       href: "/artwork/new",
       label: "＋ついか",
+      hostOnly: true,
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -90,6 +94,21 @@ export default function BottomNav() {
       <ul className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
           const active = isActive(item.href);
+          const disabled = item.hostOnly && !isHost;
+
+          if (disabled) {
+            return (
+              <li key={item.href}>
+                <span className="flex flex-col items-center gap-0.5 px-4 py-1 text-cocoa-light/40 cursor-not-allowed">
+                  <span className="text-cocoa-light/40">{item.icon}</span>
+                  <span className="text-[10px] font-bold text-cocoa-light/40">
+                    {item.label}
+                  </span>
+                </span>
+              </li>
+            );
+          }
+
           return (
             <li key={item.href}>
               <Link
