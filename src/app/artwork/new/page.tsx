@@ -36,7 +36,10 @@ function NewArtworkContent() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [memo, setMemo] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!isHost) return null;
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,22 +54,35 @@ function NewArtworkContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedChildId || !title.trim() || !imagePreview) {
-      alert("しゃしん、おなまえ、タイトルを いれてね");
+    setError(null);
+    if (!imagePreview) {
+      setError("しゃしんを えらんでね");
       return;
     }
-    const parsedDate = new Date(date);
-    addArtwork({
-      childId: selectedChildId,
-      title: title.trim(),
-      category,
-      imageUrl: imagePreview,
-      thumbnailUrl: imagePreview,
-      location,
-      date: parsedDate,
-      memo: memo.trim() || undefined,
-    });
-    router.push("/gallery");
+    if (!selectedChildId) {
+      setError("だれの さくひんか えらんでね");
+      return;
+    }
+    if (!title.trim()) {
+      setError("タイトルを いれてね");
+      return;
+    }
+    try {
+      const parsedDate = new Date(date);
+      addArtwork({
+        childId: selectedChildId,
+        title: title.trim(),
+        category,
+        imageUrl: imagePreview,
+        thumbnailUrl: imagePreview,
+        location,
+        date: parsedDate,
+        memo: memo.trim() || undefined,
+      });
+      router.push("/gallery");
+    } catch (err) {
+      setError("ほぞんに しっぱいしました");
+    }
   };
 
   const categories: Category[] = ["drawing", "craft", "other"];
@@ -277,6 +293,13 @@ function NewArtworkContent() {
               className="w-full px-4 py-3 bg-white border border-cocoa-light/30 rounded-xl text-cocoa placeholder:text-cocoa-light/60 focus:outline-none focus:ring-2 focus:ring-terracotta/50 focus:border-terracotta resize-none"
             />
           </div>
+
+          {/* Error message */}
+          {error && (
+            <div className="bg-coral/10 border border-coral/30 rounded-xl px-4 py-3 text-sm text-coral font-medium">
+              {error}
+            </div>
+          )}
 
           {/* 8. Submit button */}
           <button
