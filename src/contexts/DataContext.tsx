@@ -28,6 +28,9 @@ interface DataContextValue {
   getChild: (id: string) => Child | undefined;
   addChild: (child: Omit<Child, "id">) => Child;
   updateChild: (id: string, data: Partial<Omit<Child, "id">>) => void;
+  deleteChild: (id: string) => void;
+  exportData: () => string;
+  importData: (json: string) => void;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -194,6 +197,50 @@ export function DataProvider({ children: childrenNode }: { children: ReactNode }
     [childrenData]
   );
 
+  const deleteChild = useCallback(
+    (id: string) => {
+      const updated = childrenData.filter((c) => c.id !== id);
+      storeChildren(updated);
+      setChildrenData(updated);
+    },
+    [childrenData]
+  );
+
+  const exportData = useCallback(() => {
+    return JSON.stringify({
+      version: 1,
+      children: childrenData.map((c) => ({
+        ...c,
+        birthday: new Date(c.birthday).toISOString(),
+      })),
+      artworks: artworksData.map((a) => ({
+        ...a,
+        date: new Date(a.date).toISOString(),
+        createdAt: new Date(a.createdAt).toISOString(),
+      })),
+    });
+  }, [childrenData, artworksData]);
+
+  const importData = useCallback((json: string) => {
+    const data = JSON.parse(json);
+    if (!data.children || !data.artworks) {
+      throw new Error("Invalid backup format");
+    }
+    const importedChildren: Child[] = data.children.map((c: Record<string, unknown>) => ({
+      ...c,
+      birthday: new Date(c.birthday as string),
+    }));
+    const importedArtworks: Artwork[] = data.artworks.map((a: Record<string, unknown>) => ({
+      ...a,
+      date: new Date(a.date as string),
+      createdAt: new Date(a.createdAt as string),
+    }));
+    storeChildren(importedChildren);
+    storeArtworks(importedArtworks);
+    setChildrenData(importedChildren);
+    setArtworksData(importedArtworks);
+  }, []);
+
   return (
     <DataContext.Provider
       value={{
@@ -207,6 +254,9 @@ export function DataProvider({ children: childrenNode }: { children: ReactNode }
         getChild,
         addChild,
         updateChild,
+        deleteChild,
+        exportData,
+        importData,
       }}
     >
       {childrenNode}

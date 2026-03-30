@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getAge } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,7 +23,8 @@ export default function SettingsPage() {
 function SettingsContent() {
   const router = useRouter();
   const { user, users, isHost, logout, updateUserRole } = useAuth();
-  const { children, addChild, updateChild } = useData();
+  const { children, addChild, updateChild, deleteChild, exportData, importData } = useData();
+  const importRef = useRef<HTMLInputElement>(null);
 
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [showAddChild, setShowAddChild] = useState(false);
@@ -136,12 +137,24 @@ function SettingsContent() {
                     </div>
                   </div>
                   {isHost && !isEditing && (
-                    <button
-                      onClick={() => startEditChild(child.id)}
-                      className="px-3 py-1.5 text-xs font-medium text-terracotta border border-terracotta rounded-full hover:bg-terracotta/10 transition-colors"
-                    >
-                      へんしゅう
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => startEditChild(child.id)}
+                        className="px-3 py-1.5 text-xs font-medium text-terracotta border border-terracotta rounded-full hover:bg-terracotta/10 transition-colors"
+                      >
+                        へんしゅう
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`${child.name}を さくじょしますか？`)) {
+                            deleteChild(child.id);
+                          }
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium text-coral border border-coral rounded-full hover:bg-coral/10 transition-colors"
+                      >
+                        さくじょ
+                      </button>
+                    </div>
                   )}
                 </div>
               );
@@ -249,6 +262,57 @@ function SettingsContent() {
               className="w-full py-2.5 text-sm font-medium text-coral border border-coral rounded-full hover:bg-coral/10 transition-colors"
             >
               ログアウト
+            </button>
+          </div>
+        </section>
+
+        {/* Backup section */}
+        <section className="bg-sand rounded-2xl p-4 shadow-sm">
+          <h2 className="text-base font-bold text-cocoa mb-3">
+            バックアップ
+          </h2>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                const json = exportData();
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `satou-sakuhin-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="w-full py-3 text-sm font-medium text-terracotta border border-terracotta rounded-full hover:bg-terracotta/10 transition-colors"
+            >
+              データを ダウンロード
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  try {
+                    importData(ev.target?.result as string);
+                    alert("データを ふっきゅう しました");
+                  } catch {
+                    alert("ファイルが ただしくありません");
+                  }
+                };
+                reader.readAsText(file);
+                e.target.value = "";
+              }}
+            />
+            <button
+              onClick={() => importRef.current?.click()}
+              className="w-full py-3 text-sm font-medium text-cocoa-light border border-cocoa-light/40 rounded-full hover:border-terracotta hover:text-terracotta transition-colors"
+            >
+              データを ふっきゅう
             </button>
           </div>
         </section>

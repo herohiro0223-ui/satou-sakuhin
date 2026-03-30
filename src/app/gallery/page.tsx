@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getAvailableMonths } from "@/lib/utils";
 import { useData } from "@/contexts/DataContext";
 import AuthGuard from "@/components/auth/AuthGuard";
@@ -24,7 +25,11 @@ export default function GalleryPage() {
 }
 
 function GalleryContent() {
-  const { artworks, children } = useData();
+  const { artworks, children, getChild } = useData();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const searchQuery = searchParams.get("q") || "";
+
   const availableMonths = useMemo(() => getAvailableMonths(artworks), [artworks]);
 
   const latestMonth = availableMonths.length > 0 ? availableMonths[0] : null;
@@ -44,6 +49,20 @@ function GalleryContent() {
     setSelectedMonth(month);
   };
 
+  // Search results (across all months)
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return null;
+    const q = searchQuery.toLowerCase();
+    return artworks.filter((a) => {
+      const child = getChild(a.childId);
+      return (
+        a.title.toLowerCase().includes(q) ||
+        (a.memo && a.memo.toLowerCase().includes(q)) ||
+        (child && child.name.toLowerCase().includes(q))
+      );
+    });
+  }, [artworks, searchQuery, getChild]);
+
   const filteredArtworks = useMemo(() => {
     return artworks.filter((artwork) => {
       const artworkDate = new Date(artwork.date);
@@ -55,6 +74,45 @@ function GalleryContent() {
       return matchesMonth && matchesCategory;
     });
   }, [artworks, selectedYear, selectedMonth, selectedCategory]);
+
+  // If searching, show search results
+  if (searchResults) {
+    return (
+      <div className="min-h-screen bg-cream">
+        <Header />
+
+        <main className="pt-14 pb-20">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-cocoa">
+                「{searchQuery}」の けんさくけっか（{searchResults.length}けん）
+              </p>
+              <button
+                onClick={() => router.push("/gallery")}
+                className="text-xs text-terracotta font-medium"
+              >
+                クリア
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-2">
+            {searchResults.length > 0 ? (
+              <ArtworkGrid artworks={searchResults} children={children} />
+            ) : (
+              <EmptyState
+                emoji="🔍"
+                title="みつかりませんでした"
+                subtitle="べつの ことばで さがしてみてね"
+              />
+            )}
+          </div>
+        </main>
+
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream">

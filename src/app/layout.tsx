@@ -2,12 +2,20 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
   title: "さとう家をみてね",
   description: "子どもの作品集アプリ",
+  manifest: "/manifest.json",
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>",
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-512.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "さとう家をみてね",
   },
 };
 
@@ -35,6 +43,7 @@ export default function RootLayout({
         <AuthProvider>
           <DataProvider>{children}</DataProvider>
         </AuthProvider>
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   );
