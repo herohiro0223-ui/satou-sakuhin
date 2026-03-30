@@ -36,6 +36,7 @@ function EditArtworkContent() {
   const [memo, setMemo] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -85,20 +86,26 @@ function EditArtworkContent() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedChildId || !title.trim() || !imagePreview) {
       alert("しゃしん、おなまえ、タイトルを いれてね");
       return;
     }
+    setSubmitting(true);
     try {
+      const { uploadImage } = await import("@/lib/supabase");
+      const imageUrl = await uploadImage(
+        imagePreview,
+        `${selectedChildId}_${Date.now()}.jpg`
+      );
       const parsedDate = new Date(date);
-      updateArtwork(id, {
+      await updateArtwork(id, {
         childId: selectedChildId,
         title: title.trim(),
         category,
-        imageUrl: imagePreview,
-        thumbnailUrl: imagePreview,
+        imageUrl,
+        thumbnailUrl: imageUrl,
         location,
         date: parsedDate,
         memo: memo.trim() || undefined,
@@ -106,6 +113,8 @@ function EditArtworkContent() {
       router.push(`/artwork/${id}`);
     } catch {
       alert("ほぞんに しっぱいしました");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -320,9 +329,10 @@ function EditArtworkContent() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-4 bg-coral text-white rounded-full font-bold text-lg hover:opacity-90 transition-opacity shadow-md"
+            disabled={submitting}
+            className="w-full py-4 bg-coral text-white rounded-full font-bold text-lg hover:opacity-90 transition-opacity shadow-md disabled:opacity-50"
           >
-            ほぞんする
+            {submitting ? "アップロード中..." : "ほぞんする"}
           </button>
         </form>
       </main>

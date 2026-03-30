@@ -18,7 +18,7 @@ export default function LoginPage() {
     }
   }, [user, loading, router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -27,7 +27,7 @@ export default function LoginPage() {
       return;
     }
 
-    const err = login(email, password);
+    const err = await login(email, password);
     if (err) {
       setError(err);
       return;

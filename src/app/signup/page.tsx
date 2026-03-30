@@ -13,7 +13,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -30,7 +30,7 @@ export default function SignupPage() {
       return;
     }
 
-    const err = signup(email, password, displayName);
+    const err = await signup(email, password, displayName);
     if (err) {
       setError(err);
       return;

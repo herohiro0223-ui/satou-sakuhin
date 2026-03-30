@@ -1,4 +1,14 @@
 import { differenceInMonths, differenceInYears, format } from "date-fns";
+
+export function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
 import { ja } from "date-fns/locale";
 import type { Artwork, Child, MonthGroup } from "@/types";
 
