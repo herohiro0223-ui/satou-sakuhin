@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCategoryLabel, getCategoryEmoji } from "@/lib/utils";
+import { compressImage } from "@/lib/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import AuthGuard from "@/components/auth/AuthGuard";
@@ -41,12 +42,18 @@ function NewArtworkContent() {
 
   if (!isHost) return null;
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setImagePreview(ev.target?.result as string);
+      reader.onload = async (ev) => {
+        const raw = ev.target?.result as string;
+        try {
+          const compressed = await compressImage(raw);
+          setImagePreview(compressed);
+        } catch {
+          setImagePreview(raw);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -81,7 +88,11 @@ function NewArtworkContent() {
       });
       router.push("/gallery");
     } catch (err) {
-      setError("ほぞんに しっぱいしました");
+      if (err instanceof DOMException && err.name === "QuotaExceededError") {
+        setError("ストレージがいっぱいです。ふるい さくひんを けしてね");
+      } else {
+        setError("ほぞんに しっぱいしました");
+      }
     }
   };
 
