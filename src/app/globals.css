@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #FFF8F0;
+  --color-sand: #F5E6D3;
+  --color-terracotta: #C67B5C;
+  --color-sage: #8FA98F;
+  --color-sky: #7BAFD4;
+  --color-coral: #E8927C;
+  --color-cocoa: #5D4037;
+  --color-cocoa-light: #8D6E63;
+  --font-zen: "Zen Maru Gothic", sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-cocoa);
+  font-family: var(--font-zen);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar hide for month selector */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area for bottom nav */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Smooth page transitions */
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
