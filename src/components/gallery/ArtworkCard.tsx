@@ -19,13 +19,19 @@ export default function ArtworkCard({ artwork, child }: ArtworkCardProps) {
         className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
       />
 
-      {/* Child emoji badge - bottom left */}
-      <span className="absolute bottom-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-xs shadow-sm backdrop-blur-sm">
-        {child.emoji}
-      </span>
+      {/* Title bar - bottom */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-2 pt-5 pb-1.5">
+        <p className="text-[10px] font-medium text-white leading-tight truncate">
+          {artwork.title}
+        </p>
+        <div className="flex items-center gap-1 mt-0.5">
+          <span className="text-[10px]">{child.emoji}</span>
+          <span className="text-[9px] text-white/80">{child.name}</span>
+        </div>
+      </div>
 
-      {/* Category emoji badge - bottom right */}
-      <span className="absolute bottom-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-xs shadow-sm backdrop-blur-sm">
+      {/* Category emoji badge - top right */}
+      <span className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-xs shadow-sm backdrop-blur-sm">
         {getCategoryEmoji(artwork.category)}
       </span>
     </Link>
