@@ -27,6 +27,10 @@ export interface MonthGroup {
   artworks: Artwork[];
 }
 
+export interface ViewerPermissions {
+  canAdd: boolean;
+}
+
 export type UserRole = "host" | "viewer";
 
 export interface User {

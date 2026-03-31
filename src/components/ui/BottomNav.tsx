@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface NavItem {
   href: string;
@@ -14,6 +15,7 @@ interface NavItem {
 export default function BottomNav() {
   const pathname = usePathname();
   const { isHost } = useAuth();
+  const { viewerCanAdd } = useSettings();
 
   const navItems: NavItem[] = [
     {
@@ -94,7 +96,7 @@ export default function BottomNav() {
       <ul className="flex h-16 items-center justify-around">
         {navItems.map((item) => {
           const active = isActive(item.href);
-          const disabled = item.hostOnly && !isHost;
+          const disabled = item.hostOnly && !isHost && !viewerCanAdd;
 
           if (disabled) {
             return (

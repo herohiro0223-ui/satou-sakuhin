@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { DataProvider } from "@/contexts/DataContext";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
@@ -41,7 +42,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-dvh bg-cream font-zen">
         <AuthProvider>
-          <DataProvider>{children}</DataProvider>
+          <SettingsProvider>
+            <DataProvider>{children}</DataProvider>
+          </SettingsProvider>
         </AuthProvider>
         <ServiceWorkerRegistrar />
       </body>

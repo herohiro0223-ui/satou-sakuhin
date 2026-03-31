@@ -113,7 +113,7 @@ function ArtworkDetailContent() {
           <img
             src={artwork.imageUrl}
             alt={artwork.title}
-            className="w-full aspect-square object-cover rounded-2xl shadow-md"
+            className="w-full max-h-[70vh] object-contain rounded-2xl shadow-md bg-sand/30"
           />
         </div>
 

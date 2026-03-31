@@ -7,6 +7,7 @@ import { getCategoryLabel, getCategoryEmoji } from "@/lib/utils";
 import { compressImage } from "@/lib/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import AuthGuard from "@/components/auth/AuthGuard";
 import BottomNav from "@/components/ui/BottomNav";
 import type { Category } from "@/types";
@@ -22,13 +23,15 @@ export default function NewArtworkPage() {
 function NewArtworkContent() {
   const { isHost } = useAuth();
   const { children, addArtwork } = useData();
+  const { viewerCanAdd } = useSettings();
   const router = useRouter();
+  const canAdd = isHost || viewerCanAdd;
 
   useEffect(() => {
-    if (!isHost) {
+    if (!canAdd) {
       router.replace("/gallery");
     }
-  }, [isHost, router]);
+  }, [canAdd, router]);
 
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -41,7 +44,7 @@ function NewArtworkContent() {
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isHost) return null;
+  if (!canAdd) return null;
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

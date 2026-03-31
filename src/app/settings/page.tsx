@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getAge } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import AuthGuard from "@/components/auth/AuthGuard";
 import Header from "@/components/ui/Header";
 import BottomNav from "@/components/ui/BottomNav";
@@ -24,6 +25,7 @@ function SettingsContent() {
   const router = useRouter();
   const { user, users, isHost, logout, updateUserRole } = useAuth();
   const { children, addChild, updateChild, deleteChild, exportData, importData } = useData();
+  const { viewerCanAdd, updateViewerCanAdd } = useSettings();
   const importRef = useRef<HTMLInputElement>(null);
 
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
@@ -228,6 +230,42 @@ function SettingsContent() {
                   </button>
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Viewer permissions - host only */}
+        {isHost && (
+          <section className="bg-sand rounded-2xl p-4 shadow-sm">
+            <h2 className="text-base font-bold text-cocoa mb-3">
+              えつらん けんげん
+            </h2>
+            <div className="bg-white rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-cocoa">
+                    閲覧者も さくひんを ついかできる
+                  </p>
+                  <p className="text-xs text-cocoa-light mt-0.5">
+                    ONにすると けんらんユーザーも しゃしんを ついかできます
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={viewerCanAdd}
+                  onClick={() => updateViewerCanAdd(!viewerCanAdd)}
+                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${
+                    viewerCanAdd ? "bg-terracotta" : "bg-cocoa-light/30"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                      viewerCanAdd ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </section>
         )}
